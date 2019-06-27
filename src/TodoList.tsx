@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { useUser } from './context/auth-context';
 import TodoItem from './TodoItem';
 const Container = styled.div`
-	display: flex;
-	flex-direction: column;
+	/* border: 1px solid black; */
 `;
 type Collection = {
 	id: string;
@@ -93,7 +92,7 @@ const TodoList = (props: any) => {
 						</div>
 					);
 				})}
-			<form onSubmit={createTask}>
+			{/* <form onSubmit={createTask}>
 				<label htmlFor="task" />
 				<input id="task" value={task} onChange={e => setTask(e.target.value)} />
 				prioirty:
@@ -105,8 +104,8 @@ const TodoList = (props: any) => {
 				<button type="submit" onClick={createTask}>
 					Create
 				</button>
-			</form>
-			<button onClick={callCalendar}>Here goes Nothing!</button>
+			</form> */}
+			{/* <button onClick={callCalendar}>Here goes Nothing!</button> */}
 		</Container>
 	);
 };

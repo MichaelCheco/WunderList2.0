@@ -1,8 +1,16 @@
 import React from 'react';
 import { Link } from '@reach/router';
 import moment from 'moment-timezone';
+import styled from 'styled-components';
 import { db } from './firebase';
 import { useUser } from './context/auth-context';
+const Container = styled.div`
+	display: flex;
+	width: 100%;
+	border: 1px solid black;
+	justify-content: space-evenly;
+`;
+
 let daysOfWeek = {
 	Sunday: 0,
 	Monday: 1,
@@ -25,11 +33,9 @@ const TodoItem = ({ task }: Doc | any) => {
 	function setDueDate() {
 		if (typeof date === 'string') {
 			let y = date.split(' ');
-			console.log(y);
 			if (y[0].toLowerCase() === 'next') {
 				let num = daysOfWeek[y[1]];
 				let val = 7 + num;
-				console.log(val, 'val');
 				setDate(val);
 				let dateToSet = new moment()
 					.add(val, 'days')
@@ -51,7 +57,6 @@ const TodoItem = ({ task }: Doc | any) => {
 		if (daysOfWeek[date]) {
 			let num = daysOfWeek[date];
 			setDate(num);
-			console.log(num);
 		}
 		if (typeof date === 'string') {
 			date_lower = date.toLowerCase();
@@ -63,10 +68,9 @@ const TodoItem = ({ task }: Doc | any) => {
 			}
 		}
 		let dateToSet = new moment()
-			.add(date, 'days') // Add one day (ie set moment instance to tomorrow)
-			.startOf('day') // Set the time to midnight
+			.add(date, 'days')
+			.startOf('day')
 			.format('MMM Do');
-		console.log(dateToSet);
 		setDate('');
 		db.collection(`users`)
 			.doc(user.uid)
@@ -75,9 +79,6 @@ const TodoItem = ({ task }: Doc | any) => {
 			.update({
 				due_date: dateToSet,
 			});
-		// let date_arr: string[] = [...date];
-
-		// console.log(date_arr);
 	}
 	function handleCompleted(e) {
 		e.preventDefault();
@@ -90,30 +91,89 @@ const TodoItem = ({ task }: Doc | any) => {
 			});
 	}
 	return (
-		<div>
-			{task.task}
-			{task.completed ? 'Completed' : 'Not Completed'}
-			<Link to={`${task.id}`} id={task.id}>
-				Item
-			</Link>
-			<label>
-				<input
-					type="checkbox"
-					checked={task.completed}
-					onChange={handleCompleted}
+		<Container>
+			<Div>
+				<label>
+					<Input
+						type="checkbox"
+						checked={task.completed}
+						onChange={handleCompleted}
+					/>
+				</label>
+				<Link to={`${task.id}`} id={task.id}>
+					<h4>{task.task}</h4>
+				</Link>
+			</Div>
+			<Date>
+				<label htmlFor="date" />
+				<Input
+					type="text"
+					id="date"
+					value={date}
+					onChange={e => setDate(e.target.value)}
+					placeholder="add a due date"
 				/>
-				<p>{task.due_date}</p>
-			</label>
-			<label htmlFor="date" />
-			<input
-				type="text"
-				id="date"
-				value={date}
-				onChange={e => setDate(e.target.value)}
-				placeholder="add a due date"
-			/>
-			<button onClick={setDueDate}>date</button>
-		</div>
+				<Button onClick={setDueDate}>date</Button>
+			</Date>
+		</Container>
 	);
 };
 export default TodoItem;
+const Date = styled.div`
+	width: 30%;
+	display: flex;
+	/* flex-direction: column; */
+	align-items: center;
+	justify-content: center;
+`;
+const Div = styled.div`
+	width: 70%;
+	display: flex;
+	h4 {
+		font-family: 'Roboto';
+		font-size: 1.3rem;
+		color: #999999;
+		text-decoration: none;
+	}
+	a {
+		color: #999999;
+		text-decoration: none;
+	}
+`;
+const Input = styled.input`
+	width: 100px;
+	border-radius: 4px;
+	outline: 0;
+	color: #999999;
+	/* margin: 5px 0; */
+	padding-left: 12px;
+	padding: 7px;
+	font-size: 14px;
+	background-color: rgba(0, 0, 0, 0.0001);
+	border: 1px solid #999999;
+	&::placeholder {
+		color: #999999;
+		/* padding-left: 12px; */
+		font-size: 14px;
+	}
+`;
+const Button = styled.button`
+	width: 72px;
+	height: 37px;
+	background-color: #f14b39;
+	color: white;
+	border-radius: 5px;
+	font-size: 13px;
+	transition: all 0.4s ease;
+	outline: 0;
+	margin-left: 4px;
+	/* margin-top: 15px; */
+	&:hover {
+		background-color: #ffffff;
+		color: #ff6f61;
+		border: 1px solid #f14b39;
+		cursor: pointer;
+		transition: all 0.4s ease;
+		box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
+	}
+`;
