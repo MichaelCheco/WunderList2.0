@@ -53,20 +53,6 @@ const TodoList = (props: any) => {
 				console.log(err);
 			});
 	}
-	function createTask(event) {
-		event.preventDefault();
-		const note = {
-			task,
-			completed: false,
-			due_date: Date.now(),
-			priority: pri ? pri : null,
-		};
-		return db
-			.collection(`users/${user.uid}/tasks`)
-			.add({ ...note })
-			.then(ref => ref.get())
-			.then(doc => ({ ...doc.data(), id: doc.id }));
-	}
 
 	let tasks = useCollection(`users/${user.uid}/tasks`, [
 		'completed',
@@ -78,7 +64,6 @@ const TodoList = (props: any) => {
 		return (
 			<>
 				<p>Loading your view...</p>
-				<button onClick={createTask}>Create</button>
 			</>
 		);
 	}
@@ -92,20 +77,6 @@ const TodoList = (props: any) => {
 						</div>
 					);
 				})}
-			{/* <form onSubmit={createTask}>
-				<label htmlFor="task" />
-				<input id="task" value={task} onChange={e => setTask(e.target.value)} />
-				prioirty:
-				<select onChange={e => setPri(e.target.value)}>
-					<option value="red">red</option>
-					<option value="blue">blue</option>
-					<option value="green">green</option>
-				</select>
-				<button type="submit" onClick={createTask}>
-					Create
-				</button>
-			</form> */}
-			{/* <button onClick={callCalendar}>Here goes Nothing!</button> */}
 		</Container>
 	);
 };

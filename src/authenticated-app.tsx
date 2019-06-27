@@ -8,8 +8,17 @@ import styled from 'styled-components';
 import { useUser } from './context/auth-context';
 import { db } from './firebase';
 type priority = 'red' | 'blue' | 'green';
-function Modal({ button, children }) {
+const ShowContext = React.createContext<boolean | undefined | any>(undefined);
+function ShowProvider(props) {
 	const [show, setShow] = React.useState(false);
+	return <ShowContext.Provider value={{ show, setShow }} {...props} />;
+}
+const useShow = () => {
+	const context = React.useContext(ShowContext);
+	return context;
+};
+function Modal({ button, children }) {
+	const { show, setShow } = useShow();
 	return (
 		<>
 			{React.cloneElement(button, { onClick: () => setShow(true) })}
@@ -24,6 +33,7 @@ function Modal({ button, children }) {
 	);
 }
 function Nav() {
+	const { show, setShow } = useShow();
 	const [pri, setPri] = React.useState<priority | null | string>(null);
 
 	const [task, setTask] = React.useState('');
@@ -36,6 +46,8 @@ function Nav() {
 			due_date: Date.now(),
 			priority: pri ? pri : null,
 		};
+		setShow(!show);
+		setTask('');
 		return db
 			.collection(`users/${user.uid}/tasks`)
 			.add({ ...note })
@@ -70,7 +82,9 @@ function Nav() {
 const AuthenticatedApp = () => {
 	return (
 		<Container>
-			<Nav />
+			<ShowProvider>
+				<Nav />
+			</ShowProvider>
 			<Routes />
 		</Container>
 	);
