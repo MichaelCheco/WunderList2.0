@@ -2,12 +2,25 @@ import React from 'react';
 import { Router, Redirect } from '@reach/router';
 import TodoList from './TodoList';
 import SingleTodo from './SingleTodo';
-import UnAuthenticatedApp from './unauthenticated-app';
-let Home = (props: any) => <div>Home</div>;
-let Dash = (props: any) => <div>Dash</div>;
-
+import styled from 'styled-components';
+const Div = styled.div`
+	height: 50px;
+	background-color: palegoldenrod;
+`;
+function Nav() {
+	return (
+		<Div>
+			<h1>Welcome!</h1>
+		</Div>
+	);
+}
 const AuthenticatedApp = () => {
-	return <Routes />;
+	return (
+		<>
+			<Nav />
+			<Routes />
+		</>
+	);
 };
 // function Foo() {
 // 	return <p>Foo</p>;

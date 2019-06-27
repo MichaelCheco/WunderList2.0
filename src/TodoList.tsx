@@ -1,7 +1,12 @@
 import React from 'react';
-import { db } from './firebase';
+import { db, firebase } from './firebase';
+import styled from 'styled-components';
 import { useUser } from './context/auth-context';
 import TodoItem from './TodoItem';
+const Container = styled.div`
+	display: flex;
+	flex-direction: column;
+`;
 type Collection = {
 	id: string;
 	task: string;
@@ -9,6 +14,8 @@ type Collection = {
 	completed: boolean;
 	priority?: 'red' | 'blue' | 'green';
 }[];
+var Calendar = firebase.functions().httpsCallable('Calendar');
+
 type priority = 'red' | 'blue' | 'green';
 function useCollection(path: string, where = []): Collection {
 	const [docs, setDocs] = React.useState([]);
@@ -26,8 +33,7 @@ function useCollection(path: string, where = []): Collection {
 					id: doc.id,
 				});
 			});
-			console.log(docs, 'docs');
-			let filtered = docs.filter(d => d.completed == false);
+			let filtered = docs.filter(d => d.completed === false);
 			setDocs(filtered);
 		});
 	}, [path, queryField, queryOperator, queryValue]);
@@ -37,6 +43,17 @@ const TodoList = (props: any) => {
 	const [pri, setPri] = React.useState<priority | null | string>(null);
 	const [task, setTask] = React.useState('');
 	const { user } = useUser();
+	function callCalendar() {
+		return Calendar()
+			.then(function(result) {
+				// Read result of the Cloud Function.
+				console.log(result);
+				// ...
+			})
+			.catch(err => {
+				console.log(err);
+			});
+	}
 	function createTask(event) {
 		event.preventDefault();
 		const note = {
@@ -54,21 +71,11 @@ const TodoList = (props: any) => {
 
 	let tasks = useCollection(`users/${user.uid}/tasks`, [
 		'completed',
-		'==',
+		'===',
 		'true',
 	]);
-	React.useEffect(() => {
-		function filterCompleted() {
-			console.log('fired');
-			let newTasks = tasks.filter(t => t.completed !== true);
-			console.log(newTasks, 'newTasks');
-			tasks = newTasks;
-			return newTasks;
-		}
-		filterCompleted();
-	}, [tasks]);
 
-	if (tasks.length == 0) {
+	if (tasks.length === 0) {
 		return (
 			<>
 				<p>Loading your view...</p>
@@ -77,7 +84,7 @@ const TodoList = (props: any) => {
 		);
 	}
 	return (
-		<>
+		<Container>
 			{tasks &&
 				tasks.map(t => {
 					return (
@@ -99,7 +106,8 @@ const TodoList = (props: any) => {
 					Create
 				</button>
 			</form>
-		</>
+			<button onClick={callCalendar}>Here goes Nothing!</button>
+		</Container>
 	);
 };
 

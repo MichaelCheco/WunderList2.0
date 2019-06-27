@@ -32,12 +32,10 @@ const SingleTodo = (props: any) => {
 			.collection('tasks')
 			.doc(task.id)
 			.update({ task: e.target.previousSibling.value });
-		console.log(e.target.previousSibling.value);
 	}
 	if (!user || !task) {
 		return <p>...</p>;
 	}
-	console.log(task);
 	return (
 		<>
 			<Link to="/tasks">Go Back</Link>
