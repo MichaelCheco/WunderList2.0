@@ -21,19 +21,23 @@ function useCollection(path: string, where = []): Collection {
 	const [queryField, queryOperator, queryValue] = where;
 	React.useEffect(() => {
 		let collection: any = db.collection(path);
-		// if (queryField) {
-		// 	collection = collection.where(queryField, queryOperator, queryValue);
-		// }
+		console.log(collection, 'before');
+		if (queryField) {
+			collection = collection.where(queryField, queryOperator, queryValue);
+			console.log(collection, 'after');
+		}
 		return collection.onSnapshot(snapshot => {
+			console.log(snapshot);
+
 			const docs: any = [];
+			console.log(docs, 'docs');
 			snapshot.forEach(doc => {
 				docs.push({
 					...doc.data(),
 					id: doc.id,
 				});
 			});
-			let filtered = docs.filter(d => d.completed === false);
-			setDocs(filtered);
+			setDocs(docs);
 		});
 	}, [path, queryField, queryOperator, queryValue]);
 	return docs;
@@ -45,7 +49,6 @@ const TodoList = (props: any) => {
 	function callCalendar() {
 		return Calendar()
 			.then(function(result) {
-				// Read result of the Cloud Function.
 				console.log(result);
 				// ...
 			})
@@ -56,8 +59,8 @@ const TodoList = (props: any) => {
 
 	let tasks = useCollection(`users/${user.uid}/tasks`, [
 		'completed',
-		'===',
-		'true',
+		'==',
+		false,
 	]);
 
 	if (tasks.length === 0) {

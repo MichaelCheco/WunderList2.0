@@ -28,58 +28,30 @@ export type Doc = {
 	priority?: 'red' | 'blue' | 'green';
 };
 const TodoItem = ({ task }: Doc | any) => {
-	const [date, setDate] = React.useState<string | number>('');
+	const [schedule, setSchedule] = React.useState<number>(0);
+
 	const { user } = useUser();
-	function setDueDate() {
-		if (typeof date === 'string') {
-			let y = date.split(' ');
-			if (y[0].toLowerCase() === 'next') {
-				let num = daysOfWeek[y[1]];
-				let val = 7 + num;
-				setDate(val);
-				let dateToSet = new moment()
-					.add(val, 'days')
-					.startOf('day')
-					.format('MMM Do');
-				setDate('');
-				db.collection(`users`)
-					.doc(user.uid)
-					.collection('tasks')
-					.doc(task.id)
-					.update({
-						due_date: dateToSet,
-					});
-				return;
-			}
-		}
-		// var fourDaysForward = new moment().add(4, 'day');
-		let date_lower;
-		if (daysOfWeek[date]) {
-			let num = daysOfWeek[date];
-			setDate(num);
-		}
-		if (typeof date === 'string') {
-			date_lower = date.toLowerCase();
-			if (date_lower === 'tomorrow') {
-				setDate(1);
-			}
-			if (date_lower === 'today') {
-				setDate(0);
-			}
-		}
-		let dateToSet = new moment()
-			.add(date, 'days')
-			.startOf('day')
-			.format('MMM Do');
-		setDate('');
+
+	function setDueDate(event) {
+		console.log('fired');
+		event.preventDefault();
+
+		let curr = new Date();
+		curr.setDate(curr.getDate() + Number(schedule));
+		let final = moment(curr).format('MMM DD');
+
+		console.log(curr);
 		db.collection(`users`)
 			.doc(user.uid)
 			.collection('tasks')
 			.doc(task.id)
 			.update({
-				due_date: dateToSet,
+				due_date: final,
 			});
+		return;
 	}
+
+	// var fourDaysForward = new moment().add(4, 'day');
 	function handleCompleted(e) {
 		e.preventDefault();
 		db.collection(`users`)
@@ -94,7 +66,7 @@ const TodoItem = ({ task }: Doc | any) => {
 		<Container>
 			<Div>
 				<label>
-					<Input
+					<input
 						type="checkbox"
 						checked={task.completed}
 						onChange={handleCompleted}
@@ -104,30 +76,47 @@ const TodoItem = ({ task }: Doc | any) => {
 					<h4>{task.task}</h4>
 				</Link>
 			</Div>
-			<Date>
-				<label htmlFor="date" />
-				<Input
-					type="text"
-					id="date"
-					value={date}
-					onChange={e => setDate(e.target.value)}
-					placeholder="add a due date"
-				/>
-				<Button onClick={setDueDate}>date</Button>
-			</Date>
+			{!task.due_date ? (
+				<DateView>
+					<label htmlFor="schedule" />
+					<Input
+						type="number"
+						id="schedule"
+						value={schedule}
+						onChange={e => setSchedule(e.target.value)}
+						placeholder="days to complete 0 for (today)"
+					/>
+					<Button onClick={setDueDate}>Days</Button>
+				</DateView>
+			) : (
+				<DateView>
+					<p>{task.due_date}</p>
+					<Colors color={task.priority} />
+				</DateView>
+			)}
 		</Container>
 	);
 };
 export default TodoItem;
-const Date = styled.div`
-	width: 30%;
+const Colors = styled.div`
+	width: 12px;
+	height: 12px;
+	/* width: 12px;
+	height: 5px; */
+	display: relative;
+	background-color: ${props => (props.color == 'blue' ? '#1DA1F1' : props.color)};
+	/* border: 2px solid ${props => props.color}; */
+	border-radius: 50%;
+`;
+const DateView = styled.div`
+	width: 20%;
 	display: flex;
 	/* flex-direction: column; */
 	align-items: center;
-	justify-content: center;
+	justify-content: space-around;
 `;
 const Div = styled.div`
-	width: 70%;
+	width: 80%;
 	display: flex;
 	h4 {
 		font-family: 'Roboto';
@@ -139,9 +128,22 @@ const Div = styled.div`
 		color: #999999;
 		text-decoration: none;
 	}
+	/* label {
+		width: 200px;
+		position: relative;
+		left: -20px;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	input {
+		width: 20px;
+		position: relative;
+		left: 200px;
+		vertical-align: middle;
+	} */
 `;
 const Input = styled.input`
-	width: 100px;
+	width: 60px;
 	border-radius: 4px;
 	outline: 0;
 	color: #999999;
@@ -158,8 +160,8 @@ const Input = styled.input`
 	}
 `;
 const Button = styled.button`
-	width: 72px;
-	height: 37px;
+	width: 95px;
+	height: 35px;
 	background-color: #f14b39;
 	color: white;
 	border-radius: 5px;
@@ -167,6 +169,7 @@ const Button = styled.button`
 	transition: all 0.4s ease;
 	outline: 0;
 	margin-left: 4px;
+	margin-right: 4px;
 	/* margin-top: 15px; */
 	&:hover {
 		background-color: #ffffff;

@@ -7,7 +7,7 @@ import SingleTodo from './SingleTodo';
 import styled from 'styled-components';
 import { useUser } from './context/auth-context';
 import { db } from './firebase';
-type priority = 'red' | 'blue' | 'green';
+type priority = 'red' | 'blue' | 'yellow';
 const ShowContext = React.createContext<boolean | undefined | any>(undefined);
 function ShowProvider(props) {
 	const [show, setShow] = React.useState(false);
@@ -35,7 +35,7 @@ function Modal({ button, children }) {
 function Nav() {
 	const { show, setShow } = useShow();
 	const [pri, setPri] = React.useState<priority | null | string>(null);
-
+	console.log(pri, 'pri');
 	const [task, setTask] = React.useState('');
 	const { user } = useUser();
 	function createTask(event) {
@@ -43,7 +43,7 @@ function Nav() {
 		const note = {
 			task,
 			completed: false,
-			due_date: Date.now(),
+			due_date: null,
 			priority: pri ? pri : null,
 		};
 		setShow(!show);
@@ -69,7 +69,7 @@ function Nav() {
 					<select onChange={e => setPri(e.target.value)}>
 						<option value="red">red</option>
 						<option value="blue">blue</option>
-						<option value="green">green</option>
+						<option value="yellow">yellow</option>
 					</select>
 					<button type="submit" onClick={createTask}>
 						Create
@@ -79,6 +79,7 @@ function Nav() {
 		</Div>
 	);
 }
+
 const AuthenticatedApp = () => {
 	return (
 		<Container>
