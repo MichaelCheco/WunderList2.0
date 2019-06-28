@@ -16,19 +16,18 @@ type Collection = {
 var Calendar = firebase.functions().httpsCallable('Calendar');
 
 type priority = 'red' | 'blue' | 'green';
-function useCollection(path: string, where = []): Collection {
+function useCollection(path: string, where = [], orderBy: string): Collection {
 	const [docs, setDocs] = React.useState([]);
 	const [queryField, queryOperator, queryValue] = where;
 	React.useEffect(() => {
 		let collection: any = db.collection(path);
-		console.log(collection, 'before');
 		if (queryField) {
 			collection = collection.where(queryField, queryOperator, queryValue);
-			console.log(collection, 'after');
+		}
+		if (orderBy) {
+			collection = collection.orderBy(orderBy);
 		}
 		return collection.onSnapshot(snapshot => {
-			console.log(snapshot);
-
 			const docs: any = [];
 			console.log(docs, 'docs');
 			snapshot.forEach(doc => {
@@ -39,12 +38,10 @@ function useCollection(path: string, where = []): Collection {
 			});
 			setDocs(docs);
 		});
-	}, [path, queryField, queryOperator, queryValue]);
+	}, [path, queryField, queryOperator, queryValue, orderBy]);
 	return docs;
 }
 const TodoList = (props: any) => {
-	const [pri, setPri] = React.useState<priority | null | string>(null);
-	const [task, setTask] = React.useState('');
 	const { user } = useUser();
 	function callCalendar() {
 		return Calendar()
@@ -57,11 +54,11 @@ const TodoList = (props: any) => {
 			});
 	}
 
-	let tasks = useCollection(`users/${user.uid}/tasks`, [
-		'completed',
-		'==',
-		false,
-	]);
+	let tasks = useCollection(
+		`users/${user.uid}/tasks`,
+		['completed', '==', false],
+		'made'
+	);
 
 	if (tasks.length === 0) {
 		return (

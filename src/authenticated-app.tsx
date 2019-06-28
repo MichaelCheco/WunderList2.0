@@ -35,7 +35,6 @@ function Modal({ button, children }) {
 function Nav() {
 	const { show, setShow } = useShow();
 	const [pri, setPri] = React.useState<priority | null | string>(null);
-	console.log(pri, 'pri');
 	const [task, setTask] = React.useState('');
 	const { user } = useUser();
 	function createTask(event) {
@@ -45,6 +44,7 @@ function Nav() {
 			completed: false,
 			due_date: null,
 			priority: pri ? pri : null,
+			made: Date.now(),
 		};
 		setShow(!show);
 		setTask('');
@@ -90,9 +90,6 @@ const AuthenticatedApp = () => {
 		</Container>
 	);
 };
-// function Foo() {
-// 	return <p>Foo</p>;
-// }
 function Routes() {
 	return (
 		<Router>
